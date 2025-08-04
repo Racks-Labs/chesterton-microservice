@@ -31,4 +31,4 @@ RUN chmod +x entrypoint.sh
 EXPOSE 8000
 
 # Comando por defecto
-CMD ["./entrypoint.sh"] 
+CMD ["python", "railway_config.py"] 
