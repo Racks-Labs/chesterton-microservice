@@ -31,7 +31,7 @@ def main():
         script_path = "scripts/run_once.py"
     elif execution_mode == "scheduled":
         logger.info("⏰ Modo: Ejecución programada")
-        script_path = "scripts/scheduler.py"
+        script_path = "scripts/railway_scheduler.py"
     elif execution_mode == "cron":
         logger.info("⏰ Modo: Cron job optimizado")
         script_path = "scripts/cron_job.py"
