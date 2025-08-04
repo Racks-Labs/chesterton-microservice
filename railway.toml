@@ -1,0 +1,13 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+startCommand = "python railway_config.py"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "never"
+
+# Configuración para cron job semanal
+[deploy.cron]
+schedule = "0 2 * * 0"  # Cada domingo a las 2:00 AM
+command = "python scripts/run_once.py" 

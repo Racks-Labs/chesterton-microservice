@@ -32,12 +32,15 @@ def main():
     elif execution_mode == "scheduled":
         logger.info("⏰ Modo: Ejecución programada")
         script_path = "scripts/scheduler.py"
+    elif execution_mode == "cron":
+        logger.info("⏰ Modo: Cron job optimizado")
+        script_path = "scripts/cron_job.py"
     elif execution_mode == "manual":
         logger.info("👤 Modo: Manual (solo entrypoint.sh)")
         script_path = "entrypoint.sh"
     else:
         logger.error(f"❌ Modo de ejecución no válido: {execution_mode}")
-        logger.info("💡 Modos disponibles: once, scheduled, manual")
+        logger.info("💡 Modos disponibles: once, scheduled, cron, manual")
         sys.exit(1)
     
     # Ejecutar el script correspondiente
