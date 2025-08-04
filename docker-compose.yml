@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  chesterton-microservice:
+    build: .
+    container_name: chesterton-microservice
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION}
+      - WORDPRESS_SITE_URL=${WORDPRESS_SITE_URL}
+      - DB_URL=${DB_URL}
+      - XML_URL=${XML_URL}
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - chesterton-network
+
+networks:
+  chesterton-network:
+    driver: bridge 
