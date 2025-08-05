@@ -56,7 +56,7 @@ def crear_esquema_db(cursor):
     """)
 
     print("Creando nuevas tablas...")
-    # Esquema definitivo con TODOS los campos
+    # --- MODIFICADO: Esquema definitivo con TODOS los campos ---
     cursor.execute("""
         CREATE TABLE propiedades (
             -- IDs y Referencias
@@ -67,7 +67,7 @@ def crear_esquema_db(cursor):
 
             -- Fechas
             fecha_creacion TIMESTAMP WITH TIME ZONE,
-            fecha_publicacion TIMESTAMP WITH TIME ZONE,
+            fecha_publicacion TIMESTAMP WITH TIME ZONE, -- <-- AÑADIDO (para <Fecha>)
             fecha_modificacion TIMESTAMP WITH TIME ZONE,
             
             -- Clasificación del Inmueble
@@ -102,282 +102,324 @@ def crear_esquema_db(cursor):
             planta TEXT,
             letra TEXT,
             codigo_postal TEXT,
+            parcela TEXT,
             latitud NUMERIC,
             longitud NUMERIC,
+            zoom INTEGER,
+            tipo_localizacion INTEGER,          -- <-- AÑADIDO
+            latitud_zona NUMERIC,               -- <-- AÑADIDO
+            longitud_zona NUMERIC,              -- <-- AÑADIDO
+            radio_zona NUMERIC,                 -- <-- AÑADIDO
             
-            -- Características Físicas
-            superficie_construida NUMERIC,
-            superficie_util NUMERIC,
-            superficie_parcela NUMERIC,
-            num_habitaciones INTEGER,
-            num_banos INTEGER,
-            num_aseos INTEGER,
-            num_plantas INTEGER,
+            -- Dimensiones y Superficies
+            metros_construidos NUMERIC,
+            metros_utiles NUMERIC,
+            metros_parcela NUMERIC,
+            metros_edificables NUMERIC,
+            metros_oficinas NUMERIC,
+            metros_jardin NUMERIC,
+            metros_terrazas NUMERIC,
+            metros_fachada NUMERIC,
+            metros_fachada_secundaria NUMERIC,
+            altura_techo NUMERIC,
             ano_construccion INTEGER,
-            estado_conservacion TEXT,
+            superficies JSONB,
             
-            -- Características Adicionales
-            equipamiento TEXT,
-            calefaccion TEXT,
-            aire_acondicionado TEXT,
+            -- Características numéricas (Conteos)
+            habitaciones INTEGER,
+            banos INTEGER,
+            aseos INTEGER,
+            despachos INTEGER,
+            salas_reunion INTEGER,
+            sala_descanso INTEGER,              -- <-- AÑADIDO
+            cocina INTEGER,                     -- <-- AÑADIDO
+            comedor INTEGER,                    -- <-- AÑADIDO
+            plazas_garaje INTEGER,
+            plazas_parking INTEGER,
+            armarios INTEGER,
+            num_terrazas INTEGER,
+            entradas_nave_tir INTEGER,
+            plantas_del_edificio INTEGER,
+            chimeneas INTEGER,                  -- <-- AÑADIDO
+            trasteros INTEGER,
+            
+            -- Características Cualitativas (Texto)
+            calificacion_suelo TEXT,
+            tipo_configuracion TEXT,            -- <-- AÑADIDO
+            orientacion TEXT,
+            calificacion_energetica TEXT,
+            consumo TEXT,
+            calificacion_emisiones TEXT,
+            emisiones TEXT,
+            carpinteria TEXT,
+            suelo TEXT,
+            luminoso TEXT,                      -- <-- AÑADIDO
+            ruido TEXT,                         -- <-- AÑADIDO
+            vistas TEXT,                        -- <-- AÑADIDO
+
+            -- Características Booleanas (0/1)
+            en_esquina BOOLEAN,
+            interior BOOLEAN,
+            exterior BOOLEAN,
+            salida_emergencia BOOLEAN,
+            salida_humos BOOLEAN,
+            divisiones BOOLEAN,
+            vestuarios BOOLEAN,
+            escaparate BOOLEAN,
+            tiene_oficinas BOOLEAN,
+            altillo BOOLEAN,
+            patio BOOLEAN,
+            muelle_carga BOOLEAN,
+            cubierta BOOLEAN,
+            vado BOOLEAN,
+            buhardilla BOOLEAN,
+            amueblado BOOLEAN,
+            cocina_amueblada BOOLEAN,
+            asfaltado BOOLEAN,
+            alumbrado BOOLEAN,
+            vallado BOOLEAN,
+            urbanizado BOOLEAN,
+            acometidas BOOLEAN,                 -- <-- AÑADIDO
+            aire_acondicionado BOOLEAN,         -- <-- AÑADIDO
+            luz BOOLEAN,
+            gas BOOLEAN,
+            agua BOOLEAN,
+            telefono BOOLEAN,
+            internet BOOLEAN,
+            intranet BOOLEAN,                   -- <-- AÑADIDO
+            tratamiento_ignifugo BOOLEAN,       -- <-- AÑADIDO
+            sistema_antiincendios BOOLEAN,
+            camara_frigorifica BOOLEAN,
+            pozo BOOLEAN,                       -- <-- AÑADIDO
+            piscina_privada BOOLEAN,
+            piscina_comunitaria BOOLEAN,
+            zonas_comunes BOOLEAN,              -- <-- AÑADIDO
+            zona_infantil BOOLEAN,              -- <-- AÑADIDO
+            zonas_verdes BOOLEAN,               -- <-- AÑADIDO
+            pista_multiusos BOOLEAN,            -- <-- AÑADIDO
+            gimnasio BOOLEAN,                   -- <-- AÑADIDO
+            pista_padel BOOLEAN,                -- <-- AÑADIDO
+            pista_tenis BOOLEAN,                -- <-- AÑADIDO
+            bodega BOOLEAN,                     -- <-- AÑADIDO
+            barbacoa BOOLEAN,                   -- <-- AÑADIDO
+            solarium BOOLEAN,                   -- <-- AÑADIDO
+            lavadero BOOLEAN,                   -- <-- AÑADIDO
+            alarma BOOLEAN,
+            alarma_perimetral BOOLEAN,          -- <-- AÑADIDO
+            cerrado BOOLEAN,                    -- <-- AÑADIDO
+            puerta_blindad BOOLEAN,             -- <-- AÑADIDO (respeta la errata del XML)
+            caja_fuerte BOOLEAN,                -- <-- AÑADIDO
+            conserje BOOLEAN,                   -- <-- AÑADIDO
+            vigilancia_24h BOOLEAN,
+            rejas BOOLEAN,                      -- <-- AÑADIDO
+            adaptado BOOLEAN,                   -- <-- AÑADIDO
+            acceso_discapacitados BOOLEAN,
+            admite_mascotas BOOLEAN,            -- <-- AÑADIDO
             ascensor BOOLEAN,
-            parking BOOLEAN,
-            trastero BOOLEAN,
-            terraza BOOLEAN,
-            jardin BOOLEAN,
-            piscina BOOLEAN,
+            montacargas BOOLEAN,
+            puente_grua BOOLEAN,
+            bascula BOOLEAN,                    -- <-- AÑADIDO
+            primera_linea_playa BOOLEAN,        -- <-- AÑADIDO
+            segunda_linea_playa BOOLEAN,        -- <-- AÑADIDO
             
-            -- Información Adicional
-            caracteristicas JSONB,
-            fotos JSONB,
-            documentos JSONB,
+            -- Contenido Multimedia y otros (JSONB)
+            grupos JSONB,
+            fotos360 JSONB,                     -- <-- AÑADIDO
+            videos JSONB,                       -- <-- AÑADIDO
+            archivos JSONB,                     -- <-- AÑADIDO
             
-            -- Metadatos
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            -- Campos para completitud (posiblemente vacíos)
+            cuentas TEXT,                       -- <-- AÑADIDO
+            mandatos TEXT                       -- <-- AÑADIDO
         );
-    """)
-
-    # Crear tabla propiedades_min (versión simplificada)
-    cursor.execute("""
-        CREATE TABLE propiedades_min (
-            id NUMERIC PRIMARY KEY,
-            referencia TEXT UNIQUE NOT NULL,
-            titulo TEXT,
-            tipo TEXT,
-            poblacion TEXT,
-            precio NUMERIC,
-            superficie_construida NUMERIC,
-            num_habitaciones INTEGER,
-            num_banos INTEGER,
-            latitud NUMERIC,
-            longitud NUMERIC,
-            url TEXT,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-    """)
-
-    # Crear tabla fotos
-    cursor.execute("""
+        
         CREATE TABLE fotos (
             id SERIAL PRIMARY KEY,
-            propiedad_id NUMERIC REFERENCES propiedades(id) ON DELETE CASCADE,
-            url TEXT NOT NULL,
+            propiedad_referencia TEXT NOT NULL REFERENCES propiedades(referencia) ON DELETE CASCADE,
+            url_foto TEXT,
+            orden INTEGER
+        );
+    """)
+
+    print("Creando tabla minimalista 'propiedades_min'...")
+    cursor.execute("""
+        CREATE TABLE propiedades_min (
+            referencia TEXT PRIMARY KEY,
+            url TEXT,
+            titulo TEXT,
             descripcion TEXT,
-            principal BOOLEAN DEFAULT FALSE,
-            orden INTEGER DEFAULT 0,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            descripcion_ampliada TEXT,
+            estado TEXT,
+            operaciones JSONB,
+            altura_techo NUMERIC,
+            metros_parcela NUMERIC,
+            metros_utiles NUMERIC,
+            metros_edificables NUMERIC,
+            metros_construidos NUMERIC,
+            metros_oficinas NUMERIC,
+            grupo_inmueble TEXT,
+            latitud NUMERIC,
+            longitud NUMERIC,
+            poblacion TEXT,
+            ano_construccion INTEGER
         );
     """)
+    print("Tabla 'propiedades_min' creada.")
 
-    # Crear tabla caracteristicas
-    cursor.execute("""
-        CREATE TABLE caracteristicas (
-            id SERIAL PRIMARY KEY,
-            nombre TEXT UNIQUE NOT NULL,
-            categoria TEXT,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-    """)
+    print("Esquema de base de datos creado exitosamente.")
 
-    # Crear tabla propiedad_caracteristicas (relación muchos a muchos)
-    cursor.execute("""
-        CREATE TABLE propiedad_caracteristicas (
-            id SERIAL PRIMARY KEY,
-            propiedad_id NUMERIC REFERENCES propiedades(id) ON DELETE CASCADE,
-            caracteristica_id INTEGER REFERENCES caracteristicas(id) ON DELETE CASCADE,
-            valor TEXT,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            UNIQUE(propiedad_id, caracteristica_id)
-        );
-    """)
-
-    # Crear índices para mejorar el rendimiento
-    cursor.execute("""
-        CREATE INDEX idx_propiedades_referencia ON propiedades(referencia);
-        CREATE INDEX idx_propiedades_tipo ON propiedades(tipo);
-        CREATE INDEX idx_propiedades_poblacion ON propiedades(poblacion);
-        CREATE INDEX idx_propiedades_operaciones ON propiedades USING GIN (operaciones);
-        CREATE INDEX idx_propiedades_min_referencia ON propiedades_min(referencia);
-        CREATE INDEX idx_fotos_propiedad_id ON fotos(propiedad_id);
-        CREATE INDEX idx_caracteristicas_nombre ON caracteristicas(nombre);
-        CREATE INDEX idx_prop_carac_propiedad_id ON propiedad_caracteristicas(propiedad_id);
-        CREATE INDEX idx_prop_carac_caracteristica_id ON propiedad_caracteristicas(caracteristica_id);
-    """)
 
 def procesar_xml_e_insertar(cursor, xml_content):
-    """Procesa el contenido XML e inserta los datos en la base de datos."""
-    try:
-        root = ET.fromstring(xml_content)
-        
+    print("Parseando el XML...")
+    root = ET.fromstring(xml_content)
+    total_inmuebles = len(root.findall('Inmueble'))
+    print(f"Se encontraron {total_inmuebles} inmuebles para procesar.")
+
+    for i, inmueble in enumerate(root.findall('Inmueble')):
+        ref = obtener_texto_safe(inmueble.find('Referencia'))
+        if not ref:
+            print(f"Saltando inmueble sin referencia en la posición {i+1}")
+            continue
+
+        print(f"Procesando inmueble {i+1}/{total_inmuebles} (Ref: {ref})...")
+
+        # --- Extracción de datos anidados a JSON ---
         def extract_json_list(xpath, mapping_func):
-            """Extrae una lista de elementos y los convierte a JSON."""
-            elements = root.findall(xpath)
-            return [mapping_func(elem) for elem in elements]
+            elements = inmueble.findall(xpath)
+            if not elements: return None
+            data_list = [mapping_func(el) for el in elements]
+            return json.dumps(data_list) if data_list else None
+
+        operaciones_json = extract_json_list('Operaciones/Operacion', lambda op: {'tipo': obtener_texto_safe(op.find('Tipo')), 'precio': obtener_numeric_safe(op.find('Precio'))})
+        superficies_json = extract_json_list('Superficies/Superficie', lambda s: {'nombre': obtener_texto_safe(s.find('Nombre')), 'superficie': obtener_numeric_safe(s.find('Superficie')), 'altura': obtener_numeric_safe(s.find('Altura')), 'observaciones': obtener_texto_safe(s.find('Observaciones'))})
+        grupos_json = extract_json_list('Grupos/Grupo', obtener_texto_safe)
+        fotos360_json = extract_json_list('Fotos360/Foto360', obtener_texto_safe) # Asumo estructura similar a Fotos
+        videos_json = extract_json_list('Videos/Video', obtener_texto_safe)
+        archivos_json = extract_json_list('Archivos/Archivo', obtener_texto_safe)
+
+        # --- Diccionario de datos completo y definitivo ---
+        propiedad_data = {
+            'id': obtener_int_safe(inmueble.find('Id')), 'referencia': ref, 'agencia_id': obtener_texto_safe(inmueble.find('AgenciaId')), 'url': obtener_texto_safe(inmueble.find('UrlPublica')),
+            'fecha_creacion': obtener_timestamp_safe(inmueble.find('FechaCreacion')), 'fecha_publicacion': obtener_timestamp_safe(inmueble.find('Fecha')), 'fecha_modificacion': obtener_timestamp_safe(inmueble.find('FechaModificacion')),
+            'grupo_inmueble': obtener_texto_safe(inmueble.find('GrupoInmueble')), 'familia': obtener_texto_safe(inmueble.find('Familia')), 'tipo': obtener_texto_safe(inmueble.find('Tipo')), 'subtipo': obtener_texto_safe(inmueble.find('Subtipo')),
+            'destacado': obtener_bool_safe(inmueble.find('Destacado')), 'estado': obtener_texto_safe(inmueble.find('Estado')), 'uso_inmueble': obtener_texto_safe(inmueble.find('UsoInmueble')), 'ultima_actividad': obtener_texto_safe(inmueble.find('UltimaActividad')),
+            'titulo': obtener_texto_safe(inmueble.find('Titulo')), 'descripcion': obtener_texto_safe(inmueble.find('Descripcion')), 'descripcion_ampliada': obtener_texto_safe(inmueble.find('DescripcionAmpliada')),
+            'operaciones': operaciones_json, 'ibi': obtener_numeric_safe(inmueble.find('Ibi')), 'gastos_comunidad': obtener_numeric_safe(inmueble.find('GastosComunidad')),
+            'provincia': obtener_texto_safe(inmueble.find('Provincia')), 'poblacion': obtener_texto_safe(inmueble.find('Poblacion')), 'zona': obtener_texto_safe(inmueble.find('Zona')), 'subzona': obtener_texto_safe(inmueble.find('Subzona')), 'urbanizacion': obtener_texto_safe(inmueble.find('Urbanizacion')),
+            'direccion': obtener_texto_safe(inmueble.find('Direccion')), 'numero': obtener_texto_safe(inmueble.find('Numero')), 'escalera': obtener_texto_safe(inmueble.find('Escalera')), 'planta': obtener_texto_safe(inmueble.find('Planta')), 'letra': obtener_texto_safe(inmueble.find('Letra')), 'codigo_postal': obtener_texto_safe(inmueble.find('CodigoPostal')), 'parcela': obtener_texto_safe(inmueble.find('Parcela')),
+            'latitud': obtener_numeric_safe(inmueble.find('Latitud')), 'longitud': obtener_numeric_safe(inmueble.find('Longitud')), 'zoom': obtener_int_safe(inmueble.find('Zoom')),
+            'tipo_localizacion': obtener_int_safe(inmueble.find('TipoLocalizacion')), 'latitud_zona': obtener_numeric_safe(inmueble.find('LatitudZona')), 'longitud_zona': obtener_numeric_safe(inmueble.find('LongitudZona')), 'radio_zona': obtener_numeric_safe(inmueble.find('RadioZona')),
+            'metros_construidos': obtener_numeric_safe(inmueble.find('MetrosConstruidos')), 'metros_utiles': obtener_numeric_safe(inmueble.find('MetrosUtiles')), 'metros_parcela': obtener_numeric_safe(inmueble.find('MetrosParcela')), 'metros_edificables': obtener_numeric_safe(inmueble.find('MetrosEdificables')),
+            'metros_oficinas': obtener_numeric_safe(inmueble.find('MetrosOficinas')), 'metros_jardin': obtener_numeric_safe(inmueble.find('MetrosJardin')), 'metros_terrazas': obtener_numeric_safe(inmueble.find('MetrosTerrazas')), 'metros_fachada': obtener_numeric_safe(inmueble.find('MetrosFachada')), 'metros_fachada_secundaria': obtener_numeric_safe(inmueble.find('MetrosFachadaSecundaria')),
+            'altura_techo': obtener_numeric_safe(inmueble.find('AlturaTecho')), 'ano_construccion': obtener_int_safe(inmueble.find('AnoConstruccion')), 'superficies': superficies_json,
+            'habitaciones': obtener_int_safe(inmueble.find('Habitaciones')), 'banos': obtener_int_safe(inmueble.find('Banos')), 'aseos': obtener_int_safe(inmueble.find('Aseos')), 'despachos': obtener_int_safe(inmueble.find('Despachos')), 'salas_reunion': obtener_int_safe(inmueble.find('SalasReunion')),
+            'sala_descanso': obtener_int_safe(inmueble.find('SalaDescanso')), 'cocina': obtener_int_safe(inmueble.find('Cocina')), 'comedor': obtener_int_safe(inmueble.find('Comedor')),
+            'plazas_garaje': obtener_int_safe(inmueble.find('PlazasGaraje')), 'plazas_parking': obtener_int_safe(inmueble.find('PlazasParking')), 'armarios': obtener_int_safe(inmueble.find('Armarios')), 'num_terrazas': obtener_int_safe(inmueble.find('NumTerrazas')), 'entradas_nave_tir': obtener_int_safe(inmueble.find('EntradasNaveTir')),
+            'plantas_del_edificio': obtener_int_safe(inmueble.find('PlantasDelEdificio')), 'chimeneas': obtener_int_safe(inmueble.find('Chimeneas')), 'trasteros': obtener_int_safe(inmueble.find('Trasteros')),
+            'calificacion_suelo': obtener_texto_safe(inmueble.find('CalificacionSuelo')), 'tipo_configuracion': obtener_texto_safe(inmueble.find('TipoConfiguracion')), 'orientacion': obtener_texto_safe(inmueble.find('Orientacion')), 'calificacion_energetica': obtener_texto_safe(inmueble.find('CalificacionEnergetica')),
+            'consumo': obtener_texto_safe(inmueble.find('Consumo')), 'calificacion_emisiones': obtener_texto_safe(inmueble.find('CalificacionEmisiones')), 'emisiones': obtener_texto_safe(inmueble.find('Emisiones')), 'carpinteria': obtener_texto_safe(inmueble.find('Carpinteria')),
+            'suelo': obtener_texto_safe(inmueble.find('Suelo')), 'luminoso': obtener_texto_safe(inmueble.find('Luminoso')), 'ruido': obtener_texto_safe(inmueble.find('Ruido')), 'vistas': obtener_texto_safe(inmueble.find('Vistas')),
+            'en_esquina': obtener_bool_safe(inmueble.find('EnEsquina')), 'interior': obtener_bool_safe(inmueble.find('Interior')), 'exterior': obtener_bool_safe(inmueble.find('Exterior')), 'salida_emergencia': obtener_bool_safe(inmueble.find('SalidaEmergencia')),
+            'salida_humos': obtener_bool_safe(inmueble.find('SalidaHumos')), 'divisiones': obtener_bool_safe(inmueble.find('Divisiones')), 'vestuarios': obtener_bool_safe(inmueble.find('Vestuarios')), 'escaparate': obtener_bool_safe(inmueble.find('Escaparate')), 'tiene_oficinas': obtener_bool_safe(inmueble.find('TieneOficinas')),
+            'altillo': obtener_bool_safe(inmueble.find('Altillo')), 'patio': obtener_bool_safe(inmueble.find('Patio')), 'muelle_carga': obtener_bool_safe(inmueble.find('MuelleCarga')), 'cubierta': obtener_bool_safe(inmueble.find('Cubierta')), 'vado': obtener_bool_safe(inmueble.find('Vado')), 'buhardilla': obtener_bool_safe(inmueble.find('Buhardilla')),
+            'amueblado': obtener_bool_safe(inmueble.find('Amueblado')), 'cocina_amueblada': obtener_bool_safe(inmueble.find('CocinaAmueblada')), 'asfaltado': obtener_bool_safe(inmueble.find('Asfaltado')), 'alumbrado': obtener_bool_safe(inmueble.find('Alumbrado')), 'vallado': obtener_bool_safe(inmueble.find('Vallado')), 'urbanizado': obtener_bool_safe(inmueble.find('Urbanizado')),
+            'acometidas': obtener_bool_safe(inmueble.find('Acometidas')), 'aire_acondicionado': obtener_bool_safe(inmueble.find('AireAcondicionado')), 'luz': obtener_bool_safe(inmueble.find('Luz')), 'gas': obtener_bool_safe(inmueble.find('Gas')), 'agua': obtener_bool_safe(inmueble.find('Agua')), 'telefono': obtener_bool_safe(inmueble.find('Telefono')),
+            'internet': obtener_bool_safe(inmueble.find('Internet')), 'intranet': obtener_bool_safe(inmueble.find('Intranet')), 'tratamiento_ignifugo': obtener_bool_safe(inmueble.find('TratamientoIgnifugo')), 'sistema_antiincendios': obtener_bool_safe(inmueble.find('SistemaAntiincendios')),
+            'camara_frigorifica': obtener_bool_safe(inmueble.find('CamaraFrigorifica')), 'pozo': obtener_bool_safe(inmueble.find('Pozo')), 'piscina_privada': obtener_bool_safe(inmueble.find('PiscinaPrivada')), 'piscina_comunitaria': obtener_bool_safe(inmueble.find('PiscinaComunitaria')),
+            'zonas_comunes': obtener_bool_safe(inmueble.find('ZonasComunes')), 'zona_infantil': obtener_bool_safe(inmueble.find('ZonaInfantil')), 'zonas_verdes': obtener_bool_safe(inmueble.find('ZonasVerdes')), 'pista_multiusos': obtener_bool_safe(inmueble.find('PistaMultiusos')), 'gimnasio': obtener_bool_safe(inmueble.find('Gimnasio')),
+            'pista_padel': obtener_bool_safe(inmueble.find('PistaPadel')), 'pista_tenis': obtener_bool_safe(inmueble.find('PistaTenis')), 'bodega': obtener_bool_safe(inmueble.find('Bodega')), 'barbacoa': obtener_bool_safe(inmueble.find('Barbacoa')), 'solarium': obtener_bool_safe(inmueble.find('Solarium')), 'lavadero': obtener_bool_safe(inmueble.find('Lavadero')),
+            'alarma': obtener_bool_safe(inmueble.find('Alarma')), 'alarma_perimetral': obtener_bool_safe(inmueble.find('AlarmaPerimetral')), 'cerrado': obtener_bool_safe(inmueble.find('Cerrado')), 'puerta_blindad': obtener_bool_safe(inmueble.find('PuertaBlindad')), 'caja_fuerte': obtener_bool_safe(inmueble.find('CajaFuerte')), 'conserje': obtener_bool_safe(inmueble.find('Conserje')),
+            'vigilancia_24h': obtener_bool_safe(inmueble.find('Vigilancia24h')), 'rejas': obtener_bool_safe(inmueble.find('Rejas')), 'adaptado': obtener_bool_safe(inmueble.find('Adaptado')), 'acceso_discapacitados': obtener_bool_safe(inmueble.find('AccesoDiscapacitados')), 'admite_mascotas': obtener_bool_safe(inmueble.find('AdmiteMascotas')),
+            'ascensor': obtener_bool_safe(inmueble.find('Ascensor')), 'montacargas': obtener_bool_safe(inmueble.find('Montacargas')), 'puente_grua': obtener_bool_safe(inmueble.find('PuenteGrua')), 'bascula': obtener_bool_safe(inmueble.find('Bascula')), 'primera_linea_playa': obtener_bool_safe(inmueble.find('PrimeraLineaPlaya')), 'segunda_linea_playa': obtener_bool_safe(inmueble.find('SegundaLineaPlaya')),
+            'grupos': grupos_json, 'fotos360': fotos360_json, 'videos': videos_json, 'archivos': archivos_json,
+            'cuentas': obtener_texto_safe(inmueble.find('Cuentas')), 'mandatos': obtener_texto_safe(inmueble.find('Mandatos'))
+        }
         
-        # Procesar cada propiedad
-        propiedades = root.findall('.//Inmueble')
-        print(f"Procesando {len(propiedades)} propiedades...")
-        
-        for i, prop in enumerate(propiedades, 1):
-            if i % 100 == 0:
-                print(f"Procesadas {i} propiedades...")
-            
-            # Extraer datos básicos
-            id_prop = obtener_int_safe(prop.find('ID'))
-            referencia = obtener_texto_safe(prop.find('Referencia'))
-            
-            if not id_prop or not referencia:
-                continue
-            
-            # Extraer operaciones
-            operaciones = {}
-            for operacion in prop.findall('.//Operacion'):
-                tipo_operacion = obtener_texto_safe(operacion.find('TipoOperacion'))
-                if tipo_operacion:
-                    operaciones[tipo_operacion] = {
-                        'precio': obtener_numeric_safe(operacion.find('Precio')),
-                        'moneda': obtener_texto_safe(operacion.find('Moneda')),
-                        'gastos': obtener_numeric_safe(operacion.find('Gastos')),
-                        'disponible': obtener_bool_safe(operacion.find('Disponible'))
-                    }
-            
-            # Extraer características
-            caracteristicas = {}
-            for carac in prop.findall('.//Caracteristica'):
-                nombre = obtener_texto_safe(carac.find('Nombre'))
-                valor = obtener_texto_safe(carac.find('Valor'))
-                if nombre:
-                    caracteristicas[nombre] = valor
-            
-            # Extraer fotos
-            fotos = []
-            for foto in prop.findall('.//Foto'):
-                fotos.append({
-                    'url': obtener_texto_safe(foto.find('URL')),
-                    'descripcion': obtener_texto_safe(foto.find('Descripcion')),
-                    'principal': obtener_bool_safe(foto.find('Principal'))
-                })
-            
-            # Preparar datos para inserción
-            datos = {
-                'id': id_prop,
-                'referencia': referencia,
-                'agencia_id': obtener_texto_safe(prop.find('AgenciaID')),
-                'url': obtener_texto_safe(prop.find('URL')),
-                'fecha_creacion': obtener_timestamp_safe(prop.find('FechaCreacion')),
-                'fecha_publicacion': obtener_timestamp_safe(prop.find('Fecha')),
-                'fecha_modificacion': obtener_timestamp_safe(prop.find('FechaModificacion')),
-                'grupo_inmueble': obtener_texto_safe(prop.find('GrupoInmueble')),
-                'familia': obtener_texto_safe(prop.find('Familia')),
-                'tipo': obtener_texto_safe(prop.find('Tipo')),
-                'subtipo': obtener_texto_safe(prop.find('Subtipo')),
-                'destacado': obtener_bool_safe(prop.find('Destacado')),
-                'estado': obtener_texto_safe(prop.find('Estado')),
-                'uso_inmueble': obtener_texto_safe(prop.find('UsoInmueble')),
-                'ultima_actividad': obtener_texto_safe(prop.find('UltimaActividad')),
-                'titulo': obtener_texto_safe(prop.find('Titulo')),
-                'descripcion': obtener_texto_safe(prop.find('Descripcion')),
-                'descripcion_ampliada': obtener_texto_safe(prop.find('DescripcionAmpliada')),
-                'operaciones': json.dumps(operaciones),
-                'ibi': obtener_numeric_safe(prop.find('IBI')),
-                'gastos_comunidad': obtener_numeric_safe(prop.find('GastosComunidad')),
-                'provincia': obtener_texto_safe(prop.find('.//Provincia')),
-                'poblacion': obtener_texto_safe(prop.find('.//Poblacion')),
-                'zona': obtener_texto_safe(prop.find('.//Zona')),
-                'subzona': obtener_texto_safe(prop.find('.//Subzona')),
-                'urbanizacion': obtener_texto_safe(prop.find('.//Urbanizacion')),
-                'direccion': obtener_texto_safe(prop.find('.//Direccion')),
-                'numero': obtener_texto_safe(prop.find('.//Numero')),
-                'escalera': obtener_texto_safe(prop.find('.//Escalera')),
-                'planta': obtener_texto_safe(prop.find('.//Planta')),
-                'letra': obtener_texto_safe(prop.find('.//Letra')),
-                'codigo_postal': obtener_texto_safe(prop.find('.//CodigoPostal')),
-                'latitud': obtener_numeric_safe(prop.find('.//Latitud')),
-                'longitud': obtener_numeric_safe(prop.find('.//Longitud')),
-                'superficie_construida': obtener_numeric_safe(prop.find('SuperficieConstruida')),
-                'superficie_util': obtener_numeric_safe(prop.find('SuperficieUtil')),
-                'superficie_parcela': obtener_numeric_safe(prop.find('SuperficieParcela')),
-                'num_habitaciones': obtener_int_safe(prop.find('NumHabitaciones')),
-                'num_banos': obtener_int_safe(prop.find('NumBanos')),
-                'num_aseos': obtener_int_safe(prop.find('NumAseos')),
-                'num_plantas': obtener_int_safe(prop.find('NumPlantas')),
-                'ano_construccion': obtener_int_safe(prop.find('AnoConstruccion')),
-                'estado_conservacion': obtener_texto_safe(prop.find('EstadoConservacion')),
-                'equipamiento': obtener_texto_safe(prop.find('Equipamiento')),
-                'calefaccion': obtener_texto_safe(prop.find('Calefaccion')),
-                'aire_acondicionado': obtener_texto_safe(prop.find('AireAcondicionado')),
-                'ascensor': obtener_bool_safe(prop.find('Ascensor')),
-                'parking': obtener_bool_safe(prop.find('Parking')),
-                'trastero': obtener_bool_safe(prop.find('Trastero')),
-                'terraza': obtener_bool_safe(prop.find('Terraza')),
-                'jardin': obtener_bool_safe(prop.find('Jardin')),
-                'piscina': obtener_bool_safe(prop.find('Piscina')),
-                'caracteristicas': json.dumps(caracteristicas),
-                'fotos': json.dumps(fotos),
-                'documentos': json.dumps([])  # Por ahora vacío
-            }
-            
-            # Insertar en la base de datos
-            columns = ', '.join(datos.keys())
-            placeholders = ', '.join(['%s'] * len(datos))
-            query = f"INSERT INTO propiedades ({columns}) VALUES ({placeholders}) ON CONFLICT (id) DO UPDATE SET updated_at = NOW()"
-            
-            cursor.execute(query, list(datos.values()))
-        
-        print(f"✅ Procesamiento completado. {len(propiedades)} propiedades procesadas.")
-        
-    except ET.ParseError as e:
-        print(f"❌ Error al parsear XML: {e}")
-        raise
-    except Exception as e:
-        print(f"❌ Error durante el procesamiento: {e}")
-        raise
+        columnas = sql.SQL(', ').join(map(sql.Identifier, propiedad_data.keys()))
+        placeholders = sql.SQL(', ').join(map(sql.Placeholder, propiedad_data.keys()))
+        updates = sql.SQL(', ').join([sql.SQL("{} = EXCLUDED.{}").format(sql.Identifier(k), sql.Identifier(k)) for k in propiedad_data.keys() if k != 'referencia'])
+        insert_propiedad = sql.SQL("INSERT INTO propiedades ({}) VALUES ({}) ON CONFLICT (referencia) DO UPDATE SET {}").format(columnas, placeholders, updates)
+        cursor.execute(insert_propiedad, propiedad_data)
+
+               # --- INICIO: LÓGICA PARA LA TABLA propiedades_min ---
+        # 1. Crear un diccionario solo con los datos para la tabla minimalista.
+        #    Reutilizamos los datos ya procesados del diccionario principal.
+        propiedad_min_data = {
+            'referencia':           propiedad_data['referencia'],
+            'url':                  propiedad_data['url'],
+            'titulo':               propiedad_data['titulo'],
+            'descripcion':          propiedad_data['descripcion'],
+            'descripcion_ampliada': propiedad_data['descripcion_ampliada'],
+            'estado':               propiedad_data['estado'],
+            'operaciones':          propiedad_data['operaciones'],
+            'altura_techo':         propiedad_data['altura_techo'],
+            'metros_parcela':       propiedad_data['metros_parcela'],
+            'metros_utiles':        propiedad_data['metros_utiles'],
+            'metros_edificables':   propiedad_data['metros_edificables'],
+            'metros_construidos':   propiedad_data['metros_construidos'],
+            'metros_oficinas':      propiedad_data['metros_oficinas'],
+            'grupo_inmueble':       propiedad_data['grupo_inmueble'],
+            'latitud':              propiedad_data['latitud'],
+            'longitud':             propiedad_data['longitud'],
+            'poblacion':            propiedad_data['poblacion'],
+            'ano_construccion':     propiedad_data['ano_construccion']
+        }
+
+        # 2. Generar y ejecutar la sentencia SQL para 'propiedades_min'
+        columnas_min = sql.SQL(', ').join(map(sql.Identifier, propiedad_min_data.keys()))
+        placeholders_min = sql.SQL(', ').join(map(sql.Placeholder, propiedad_min_data.keys()))
+        updates_min = sql.SQL(', ').join([sql.SQL("{} = EXCLUDED.{}").format(sql.Identifier(k), sql.Identifier(k)) for k in propiedad_min_data.keys() if k != 'referencia'])
+        insert_propiedad_min = sql.SQL("INSERT INTO propiedades_min ({}) VALUES ({}) ON CONFLICT (referencia) DO UPDATE SET {}").format(columnas_min, placeholders_min, updates_min)
+        cursor.execute(insert_propiedad_min, propiedad_min_data)
+        # --- FIN: LÓGICA PARA LA TABLA propiedades_min ---
+
+        # Insertar en 'fotos'
+        fotos_element = inmueble.find('Fotos')
+        if fotos_element is not None:
+            cursor.execute("DELETE FROM fotos WHERE propiedad_referencia = %s;", (ref,))
+            orden = 0
+            for foto in fotos_element.findall('Foto'):
+                url_foto = obtener_texto_safe(foto)
+                if url_foto:
+                    cursor.execute("INSERT INTO fotos (propiedad_referencia, url_foto, orden) VALUES (%s, %s, %s);", (ref, url_foto, orden))
+                    orden += 1
 
 def main():
-    if not DB_URL:
-        print("❌ Error: DB_URL no está configurada en el archivo .env")
-        return
-    
-    if not XML_URL:
-        print("❌ Error: XML_URL no está configurada en el archivo .env")
-        return
-    
-    print(f"🔗 Conectando a la base de datos...")
+    """Función principal del script."""
+    conn = None
     try:
+        print(f"Descargando XML desde {XML_URL}...")
+        response = requests.get(XML_URL)
+        response.raise_for_status()
+        xml_content = response.content
+        print("XML descargado exitosamente.")
+
+        print("Conectando a la base de datos PostgreSQL...")
         conn = psycopg2.connect(DB_URL)
         cursor = conn.cursor()
-        print("✅ Conexión a la base de datos establecida")
-    except Exception as e:
-        print(f"❌ Error al conectar a la base de datos: {e}")
-        return
-    
-    try:
-        # Crear esquema
+        print("Conexión exitosa.")
+
         crear_esquema_db(cursor)
-        
-        # Descargar XML
-        print(f"📥 Descargando XML desde: {XML_URL}")
-        response = requests.get(XML_URL, timeout=30)
-        response.raise_for_status()
-        xml_content = response.text
-        
-        # Procesar XML
         procesar_xml_e_insertar(cursor, xml_content)
-        
-        # Commit cambios
+
         conn.commit()
-        print("✅ Cambios guardados en la base de datos")
-        
-    except requests.RequestException as e:
-        print(f"❌ Error al descargar XML: {e}")
+        print("\n¡Proceso completado! Todos los datos han sido importados y guardados en la base de datos.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error al descargar el XML: {e}")
+    except psycopg2.Error as e:
+        print(f"Error de base de datos: {e}")
+        if conn:
+            conn.rollback()
     except Exception as e:
-        print(f"❌ Error durante el procesamiento: {e}")
-        conn.rollback()
+        print(f"Ocurrió un error inesperado: {e}")
+        if conn:
+            conn.rollback()
     finally:
-        cursor.close()
-        conn.close()
-        print("🔌 Conexión a la base de datos cerrada")
+        if conn:
+            cursor.close()
+            conn.close()
+            print("Conexión a la base de datos cerrada.")
 
 if __name__ == "__main__":
     main() 
