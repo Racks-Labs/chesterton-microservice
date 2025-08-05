@@ -27,8 +27,8 @@ def main():
     logger.info(f"📋 Modo de ejecución: {execution_mode}")
     
     if execution_mode == "once":
-        logger.info("🔄 Modo: Ejecución única")
-        script_path = "scripts/run_once.py"
+        logger.info("🔄 Modo: Ejecución única optimizada")
+        script_path = "scripts/run_once_optimized.py"
     elif execution_mode == "scheduled":
         logger.info("⏰ Modo: Ejecución programada")
         script_path = "scripts/railway_scheduler.py"
