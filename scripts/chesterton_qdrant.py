@@ -5,6 +5,7 @@ import uuid
 from dotenv import load_dotenv
 
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import VectorParams, Distance, PointStruct
 
@@ -14,13 +15,48 @@ load_dotenv()
 # —————— 1) CONFIGURACIÓN ——————
 # Usar variables de entorno
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 COLLECTION = os.getenv("QDRANT_COLLECTION", "chesterton")
 
-# Configurar la API key de Google
+# Configuración del modelo de embeddings
+EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "google").lower()  # "google" o "openai"
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-004")  # Modelo específico
+EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "768"))  # Dimensiones del vector
+
+# Configurar las API keys
 if GOOGLE_API_KEY:
     os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+
+def get_embedder():
+    """
+    Crea y retorna el embedder configurado según las variables de entorno.
+    """
+    if EMBEDDING_PROVIDER == "google":
+        if not GOOGLE_API_KEY:
+            raise ValueError("GOOGLE_API_KEY no está configurada")
+        print(f"🔧 Usando Google AI Embeddings con modelo: {EMBEDDING_MODEL}")
+        return GoogleGenAIEmbedding(model_name=EMBEDDING_MODEL)
+    
+    elif EMBEDDING_PROVIDER == "openai":
+        if not OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY no está configurada")
+        print(f"🔧 Usando OpenAI Embeddings con modelo: {EMBEDDING_MODEL}")
+        return OpenAIEmbedding(model=EMBEDDING_MODEL)
+    
+    else:
+        raise ValueError(f"Proveedor de embeddings no soportado: {EMBEDDING_PROVIDER}")
+
+def truncate_vector(vector, target_dimensions):
+    """
+    Trunca un vector a las dimensiones especificadas.
+    """
+    if len(vector) <= target_dimensions:
+        return vector
+    
+    print(f"🔧 Truncando vector de {len(vector)} a {target_dimensions} dimensiones")
+    return vector[:target_dimensions]
 
 def parse_md_file(path):
     """
@@ -50,16 +86,30 @@ def parse_md_file(path):
 
 
 def main():
-    if not GOOGLE_API_KEY or GOOGLE_API_KEY == "tu_clave_de_google_ai_aqui":
+    # Verificar configuración
+    if EMBEDDING_PROVIDER == "google" and (not GOOGLE_API_KEY or GOOGLE_API_KEY == "tu_clave_de_google_ai_aqui"):
         print("❌ Error: Por favor, establece tu GOOGLE_API_KEY en el archivo .env")
+        return
+    
+    if EMBEDDING_PROVIDER == "openai" and (not OPENAI_API_KEY or OPENAI_API_KEY == "tu_clave_de_openai_aqui"):
+        print("❌ Error: Por favor, establece tu OPENAI_API_KEY en el archivo .env")
         return
 
     if not QDRANT_URL or not QDRANT_API_KEY:
         print("❌ Error: Por favor, configura QDRANT_URL y QDRANT_API_KEY en el archivo .env")
         return
 
-    print("Inicializando el modelo de embeddings de Google...")
-    embedder = GoogleGenAIEmbedding(model_name="text-embedding-004")
+    print(f"🚀 Iniciando indexación con {EMBEDDING_PROVIDER.upper()} embeddings")
+    print(f"📋 Configuración:")
+    print(f"   - Proveedor: {EMBEDDING_PROVIDER}")
+    print(f"   - Modelo: {EMBEDDING_MODEL}")
+    print(f"   - Dimensiones: {EMBEDDING_DIMENSIONS}")
+
+    try:
+        embedder = get_embedder()
+    except Exception as e:
+        print(f"❌ Error al inicializar el embedder: {e}")
+        return
 
     print(f"Conectando a Qdrant en {QDRANT_URL}...")
     client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
@@ -71,7 +121,7 @@ def main():
             print(f"La colección '{COLLECTION}' no existe. Creándola ahora...")
             client.create_collection(
                 collection_name=COLLECTION,
-                vectors_config=VectorParams(size=768, distance=Distance.COSINE)
+                vectors_config=VectorParams(size=EMBEDDING_DIMENSIONS, distance=Distance.COSINE)
             )
             print(f"✅ Colección '{COLLECTION}' creada con éxito.")
         else:
@@ -117,11 +167,14 @@ def main():
 
     points = []
     for payload, emb in zip(payloads, embeddings):
+        # Truncar vector si es necesario
+        truncated_vector = truncate_vector(emb, EMBEDDING_DIMENSIONS)
+        
         # Generar siempre un UUID estable basado en la ruta del archivo
         point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, payload["metadata"]["source_path"]))
         
         points.append(
-            PointStruct(id=point_id, vector=emb, payload=payload)
+            PointStruct(id=point_id, vector=truncated_vector, payload=payload)
         )
 
     print(f"⬆️ Cargando {len(points)} puntos en la colección '{COLLECTION}'...")
@@ -129,6 +182,11 @@ def main():
         # Usar wait=True para esperar a que la operación se complete
         client.upsert(collection_name=COLLECTION, points=points, wait=True)
         print(f"✅ ¡Éxito! Se han indexado {len(points)} documentos en la colección '{COLLECTION}'.")
+        print(f"📊 Resumen:")
+        print(f"   - Proveedor: {EMBEDDING_PROVIDER}")
+        print(f"   - Modelo: {EMBEDDING_MODEL}")
+        print(f"   - Dimensiones: {EMBEDDING_DIMENSIONS}")
+        print(f"   - Documentos procesados: {len(points)}")
     except Exception as e:
         print(f"❌ Error durante la carga a Qdrant: {e}")
         # Opcional: imprimir más detalles si el error es complejo
