@@ -1,5 +1,5 @@
 version: '3.8'
-
+ 
 services:
   chesterton-microservice:
     build: .
@@ -10,7 +10,11 @@ services:
       - ./output:/app/output
     networks:
       - chesterton-network
-
+      - shared-db-network
+ 
 networks:
   chesterton-network:
-    driver: bridge 
+    driver: bridge
+  shared-db-network:
+    name: shared-db-network
+    external: true

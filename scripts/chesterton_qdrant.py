@@ -21,9 +21,9 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 COLLECTION = os.getenv("QDRANT_COLLECTION", "chesterton")
 
 # Configuración del modelo de embeddings
-EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "google").lower()  # "google" o "openai"
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-004")  # Modelo específico
-EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "768"))  # Dimensiones del vector
+EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "openai").lower()  # "google" o "openai"
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")  # Modelo específico
+EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "1536"))  # Dimensiones del vector
 
 # Configurar las API keys
 if GOOGLE_API_KEY:
