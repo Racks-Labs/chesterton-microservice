@@ -138,12 +138,71 @@ def crear_esquema_db(cursor):
         );
     """)
 
+    # Crear tabla propiedades_min (versión simplificada)
+    cursor.execute("""
+        CREATE TABLE propiedades_min (
+            id NUMERIC PRIMARY KEY,
+            referencia TEXT UNIQUE NOT NULL,
+            titulo TEXT,
+            tipo TEXT,
+            poblacion TEXT,
+            precio NUMERIC,
+            superficie_construida NUMERIC,
+            num_habitaciones INTEGER,
+            num_banos INTEGER,
+            latitud NUMERIC,
+            longitud NUMERIC,
+            url TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+    """)
+
+    # Crear tabla fotos
+    cursor.execute("""
+        CREATE TABLE fotos (
+            id SERIAL PRIMARY KEY,
+            propiedad_id NUMERIC REFERENCES propiedades(id) ON DELETE CASCADE,
+            url TEXT NOT NULL,
+            descripcion TEXT,
+            principal BOOLEAN DEFAULT FALSE,
+            orden INTEGER DEFAULT 0,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+    """)
+
+    # Crear tabla caracteristicas
+    cursor.execute("""
+        CREATE TABLE caracteristicas (
+            id SERIAL PRIMARY KEY,
+            nombre TEXT UNIQUE NOT NULL,
+            categoria TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+    """)
+
+    # Crear tabla propiedad_caracteristicas (relación muchos a muchos)
+    cursor.execute("""
+        CREATE TABLE propiedad_caracteristicas (
+            id SERIAL PRIMARY KEY,
+            propiedad_id NUMERIC REFERENCES propiedades(id) ON DELETE CASCADE,
+            caracteristica_id INTEGER REFERENCES caracteristicas(id) ON DELETE CASCADE,
+            valor TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            UNIQUE(propiedad_id, caracteristica_id)
+        );
+    """)
+
     # Crear índices para mejorar el rendimiento
     cursor.execute("""
         CREATE INDEX idx_propiedades_referencia ON propiedades(referencia);
         CREATE INDEX idx_propiedades_tipo ON propiedades(tipo);
         CREATE INDEX idx_propiedades_poblacion ON propiedades(poblacion);
         CREATE INDEX idx_propiedades_operaciones ON propiedades USING GIN (operaciones);
+        CREATE INDEX idx_propiedades_min_referencia ON propiedades_min(referencia);
+        CREATE INDEX idx_fotos_propiedad_id ON fotos(propiedad_id);
+        CREATE INDEX idx_caracteristicas_nombre ON caracteristicas(nombre);
+        CREATE INDEX idx_prop_carac_propiedad_id ON propiedad_caracteristicas(propiedad_id);
+        CREATE INDEX idx_prop_carac_caracteristica_id ON propiedad_caracteristicas(caracteristica_id);
     """)
 
 def procesar_xml_e_insertar(cursor, xml_content):
