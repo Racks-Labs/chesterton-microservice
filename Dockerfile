@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar scripts y archivos necesarios
 COPY scripts/ ./scripts/
 COPY data/ ./data/
+COPY railway_config.py .
 
 # Crear directorios necesarios
 RUN mkdir -p faqs_markdown pages posts
