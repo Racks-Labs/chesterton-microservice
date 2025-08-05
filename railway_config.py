@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script de configuración para Railway.
-Permite elegir entre diferentes modos de ejecución.
+Ejecuta el microservicio en modo único.
 """
 
 import os
@@ -18,38 +18,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def main():
-    """Función principal que determina el modo de ejecución."""
+    """Función principal que ejecuta el microservicio."""
     
-    # Obtener modo de ejecución desde variables de entorno
-    execution_mode = os.getenv("EXECUTION_MODE", "once").lower()
+    logger.info("🚀 Iniciando Microservicio Chesterton")
+    logger.info("📋 Modo: Ejecución única optimizada")
     
-    logger.info(f"🚀 Iniciando Microservicio Chesterton")
-    logger.info(f"📋 Modo de ejecución: {execution_mode}")
+    # Ejecutar el script optimizado
+    script_path = "scripts/run_once_optimized.py"
     
-    if execution_mode == "once":
-        logger.info("🔄 Modo: Ejecución única optimizada")
-        script_path = "scripts/run_once_optimized.py"
-    elif execution_mode == "scheduled":
-        logger.info("⏰ Modo: Ejecución programada")
-        script_path = "scripts/railway_scheduler.py"
-    elif execution_mode == "cron":
-        logger.info("⏰ Modo: Cron job optimizado")
-        script_path = "scripts/cron_job.py"
-    elif execution_mode == "manual":
-        logger.info("👤 Modo: Manual (solo entrypoint.sh)")
-        script_path = "entrypoint.sh"
-    else:
-        logger.error(f"❌ Modo de ejecución no válido: {execution_mode}")
-        logger.info("💡 Modos disponibles: once, scheduled, cron, manual")
-        sys.exit(1)
-    
-    # Ejecutar el script correspondiente
     try:
-        if script_path.endswith(".py"):
-            result = subprocess.run([sys.executable, script_path])
-        else:
-            result = subprocess.run([f"./{script_path}"], shell=True)
-        
+        result = subprocess.run([sys.executable, script_path])
         sys.exit(result.returncode)
         
     except Exception as e:
