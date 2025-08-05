@@ -143,7 +143,7 @@ def crear_esquema_db(cursor):
         CREATE INDEX idx_propiedades_referencia ON propiedades(referencia);
         CREATE INDEX idx_propiedades_tipo ON propiedades(tipo);
         CREATE INDEX idx_propiedades_poblacion ON propiedades(poblacion);
-        CREATE INDEX idx_propiedades_precio ON propiedades USING GIN ((operaciones->>'precio'));
+        CREATE INDEX idx_propiedades_operaciones ON propiedades USING GIN (operaciones);
     """)
 
 def procesar_xml_e_insertar(cursor, xml_content):

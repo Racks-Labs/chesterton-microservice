@@ -80,11 +80,10 @@ def main():
         print(f"❌ Error al interactuar con las colecciones de Qdrant: {e}")
         return
 
-    # Buscar archivos en TODAS las carpetas deseadas
-    print("Buscando archivos Markdown en 'faqs_markdown/', 'posts/' y 'pages/'...")
+    # Buscar archivos en carpetas específicas (solo FAQs y páginas)
+    print("Buscando archivos Markdown en 'faqs_markdown/' y 'pages/'...")
     paths = (
         glob.glob("faqs_markdown/*.md", recursive=True) +
-        glob.glob("posts/**/*.md", recursive=True) +
         glob.glob("pages/**/*.md", recursive=True)
     )
     
