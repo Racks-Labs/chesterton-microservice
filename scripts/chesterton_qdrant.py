@@ -50,7 +50,7 @@ def parse_md_file(path):
 
 
 def main():
-    if not GOOGLE_API_KEY or GOOGLE_API_KEY == "TU_GOOGLE_API_KEY_AQUI":
+    if not GOOGLE_API_KEY or GOOGLE_API_KEY == "tu_clave_de_google_ai_aqui":
         print("❌ Error: Por favor, establece tu GOOGLE_API_KEY en el archivo .env")
         return
 
