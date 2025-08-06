@@ -4,8 +4,8 @@ import glob
 import uuid
 from dotenv import load_dotenv
 
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
-from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index_embeddings_google_genai import GoogleGenAIEmbedding
+from llama_index_embeddings_openai import OpenAIEmbedding
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import VectorParams, Distance, PointStruct
 
