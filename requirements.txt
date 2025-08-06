@@ -6,7 +6,7 @@ psycopg2-binary==2.9.7
 qdrant-client==1.7.0
 PyYAML==6.0.1
 python-dotenv==1.0.0
-# --- LlamaIndex Core & Embeddings (Combinación Compatible) ---
-llama-index-core==0.13.0
-llama-index-embeddings-google-genai==0.3.0
+# --- LlamaIndex Core & Embeddings (Combinación Compatible y Verificada) ---
+llama-index-core==0.12.0
+llama-index-embeddings-google-genai==0.2.1
 llama-index-embeddings-openai==0.3.0
