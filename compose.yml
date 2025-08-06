@@ -1,0 +1,35 @@
+name: chesterton
+
+services:
+  chesterton-scripts:
+    container_name: chesterton-scripts
+    build: .
+    command: sleep infinity
+    environment:
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      QDRANT_URL: ${QDRANT_URL}
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      WORDPRESS_SITE_URL: ${WORDPRESS_SITE_URL}
+      DB_URL: ${DB_URL}
+      XML_URL: ${XML_URL}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL}
+      EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS}
+    volumes:
+      - data:/app/data
+      - output:/app/output
+    networks:
+      - chesterton-network
+      - shared-db-network
+
+volumes:
+  data:
+  output:
+
+networks:
+  chesterton-network:
+  shared-db-network:
+    name: shared-db-network
+    external: true
