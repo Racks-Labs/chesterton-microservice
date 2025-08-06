@@ -29,9 +29,9 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
 EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "1536"))
 
 # Límite de tokens aproximado. 8192 para text-embedding-3-small.
-# Usamos un límite de caracteres conservador como proxy. 1 token ~= 4 caracteres.
-# 8000 tokens * 4 chars/token = 32000. Lo dejamos en 28000 para tener margen.
-MAX_CHARS_LIMIT = 28000
+# Usamos un límite de caracteres conservador. Un ratio de 3 chars/token.
+# 8000 tokens * 3 chars/token = 24000.
+MAX_CHARS_LIMIT = 24000
 
 # Configurar las API keys
 if GOOGLE_API_KEY:
