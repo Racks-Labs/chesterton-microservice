@@ -28,9 +28,7 @@ EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "openai").lower()
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
 EMBEDDING_DIMENSIONS = int(os.getenv("EMBEDDING_DIMENSIONS", "1536"))
 
-# Límite de tokens aproximado. 8192 para text-embedding-3-small.
-# Usamos un límite de caracteres conservador. Un ratio de 3 chars/token.
-# 8000 tokens * 3 chars/token = 24000.
+# Límite de caracteres conservador
 MAX_CHARS_LIMIT = 24000
 
 # Configurar las API keys
@@ -40,7 +38,7 @@ if OPENAI_API_KEY:
     os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 # --- 2) FUNCIONES AUXILIARES ---
-
+# ... (funciones get_embedder, truncate_vector, parse_md_file sin cambios)
 def get_embedder():
     """Crea y retorna el embedder configurado."""
     if EMBEDDING_PROVIDER == "google":
@@ -95,7 +93,20 @@ def main():
     try:
         embedder = get_embedder()
         client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
-        # ... (creación de colección sin cambios)
+        
+        # --- LÓGICA DE CREACIÓN DE COLECCIÓN ---
+        try:
+            client.get_collection(collection_name=COLLECTION)
+            print(f"👍 La colección '{COLLECTION}' ya existe.")
+        except Exception:
+            print(f"La colección '{COLLECTION}' no existe. Creándola ahora...")
+            client.create_collection(
+                collection_name=COLLECTION,
+                vectors_config=VectorParams(size=EMBEDDING_DIMENSIONS, distance=Distance.COSINE)
+            )
+            print(f"✅ Colección '{COLLECTION}' creada con éxito.")
+        # --- FIN DE LA LÓGICA ---
+
     except Exception as e:
         print(f"❌ Error de configuración inicial: {e}")
         return
@@ -121,7 +132,6 @@ def main():
         question = meta.get("question", "")
         combined_text = f"Pregunta: {question}\nRespuesta: {content}" if question else content
         
-        # --- TRUNCADO SIMPLE ---
         if len(combined_text) > MAX_CHARS_LIMIT:
             print(f"⚠️  Documento '{path}' demasiado largo ({len(combined_text)} caracteres). Truncando a {MAX_CHARS_LIMIT} caracteres.")
             combined_text = combined_text[:MAX_CHARS_LIMIT]
@@ -150,7 +160,6 @@ def main():
     try:
         client.upsert(collection_name=COLLECTION, points=points, wait=True)
         print(f"✅ ¡Éxito! Se han indexado {len(points)} documentos en la colección '{COLLECTION}'.")
-        # ... (resumen sin cambios)
     except Exception as e:
         print(f"❌ Error durante la carga a Qdrant: {e}")
         if hasattr(e, 'response'):
