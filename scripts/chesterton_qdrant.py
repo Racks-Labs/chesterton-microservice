@@ -96,16 +96,20 @@ def main():
         
         # --- LÓGICA DE CREACIÓN DE COLECCIÓN ---
         try:
-            client.get_collection(collection_name=COLLECTION)
-            print(f"👍 La colección '{COLLECTION}' ya existe.")
-        except Exception:
-            print(f"La colección '{COLLECTION}' no existe. Creándola ahora...")
             client.create_collection(
                 collection_name=COLLECTION,
                 vectors_config=VectorParams(size=EMBEDDING_DIMENSIONS, distance=Distance.COSINE)
             )
             print(f"✅ Colección '{COLLECTION}' creada con éxito.")
-        # --- FIN DE LA LÓGICA ---
+        except Exception as e:
+            raw = getattr(e, "body", None) or str(e)
+            msg = raw.decode("utf-8", "ignore") if isinstance(raw, (bytes, bytearray)) else str(raw)
+            msg = msg.lower()
+            if getattr(e, "status_code", None) == 409 or "already exists" in msg or "conflict" in msg:
+                print(f"👍 La colección '{COLLECTION}' ya existía. OK.")
+            else:
+                print(f"❌ Error al comprobar la colección: {e}")
+                raise
 
     except Exception as e:
         print(f"❌ Error de configuración inicial: {e}")
